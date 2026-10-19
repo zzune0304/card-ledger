@@ -100,6 +100,13 @@
   .m-val.over { color: #ff4d5e; }
   .m-val.even { color: var(--muted); }
   .m-sub { font-size: 11.5px; color: var(--muted); margin-top: 2px; font-weight: 400; }
+  .more-btn { width: 100%; margin: 10px 0 4px; padding: 12px; border: 1px solid var(--line);
+    border-radius: 12px; background: rgba(255,255,255,.04); color: var(--muted);
+    font-size: 13.5px; font-weight: 600; cursor: pointer; }
+  .more-btn:active { background: rgba(255,255,255,.09); }
+  #txns .txn:nth-child(n+11) { display: none; }
+  #txns.expanded .txn:nth-child(n+11) { display: flex; }
+  .sec-sub { font-size: 12px; color: var(--muted); font-weight: 400; margin-left: 6px; }
   .divider { height: 1px; background: var(--line); margin: 14px -20px; }
   .totals { display: flex; align-items: stretch; }
   .total { flex: 1; text-align: center; padding: 8px 0; }
@@ -134,8 +141,11 @@
   <div class="sec-title">구간별 현황</div>
   <div class="card" style="padding-top:8px;padding-bottom:8px" id="subs"></div>
 
-  <div class="sec-title">최근 이용 내역</div>
-  <div class="card" style="padding-top:6px;padding-bottom:6px" id="txns"></div>
+  <div class="sec-title">최근 이용 내역<span class="sec-sub">최근 30일</span></div>
+  <div class="card" style="padding-top:6px;padding-bottom:6px">
+    <div id="txns"></div>
+    <button id="more-btn" class="more-btn" style="display:none"></button>
+  </div>
 
   <div class="sec-title">월별 성과</div>
   <div class="card" style="padding-top:6px;padding-bottom:6px">
@@ -192,7 +202,20 @@ function render(d) {
       <div class="m">${t.merchant}<span>${t.kind}</span></div>
       <div class="a ${t.type}">${sign(t.type)}${fmt(t.amount)}원</div>
     </div>`).join('')
-    : '<div class="empty">아직 이용 내역이 없어.</div>';
+    : '<div class="empty">최근 30일 이용 내역이 없어.</div>';
+  const extra = d.recent.length - 10;
+  const btn = $('more-btn');
+  if (extra > 0) {
+    btn.style.display = 'block';
+    const syncBtn = () => {
+      btn.textContent = $('txns').classList.contains('expanded') ? '접기' : `더보기 (${extra}개)`;
+    };
+    btn.onclick = () => { $('txns').classList.toggle('expanded'); syncBtn(); };
+    syncBtn();
+  } else {
+    btn.style.display = 'none';
+    $('txns').classList.remove('expanded');
+  }
 
   $('months').innerHTML = d.months.map(mo => `
     <div class="mrow">
