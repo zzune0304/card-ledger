@@ -169,7 +169,7 @@ function render(d) {
   $('period-label').textContent = `${y}년 ${m}월`;
   $('used').textContent = fmt(d.used);
   $('budget').textContent = fmt(d.budget);
-  $('budget-note').textContent = `(기본 ${fmt(d.base_limit)}원 + 입금 ${fmt(d.deposits)}원)`;
+  $('budget-note').textContent = '';
   $('remain').textContent = fmt(d.budget - d.used);
   const pctEl = $('pct');
   pctEl.textContent = (d.pct * 100).toFixed(1) + '%';
