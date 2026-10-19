@@ -133,16 +133,13 @@
   <div class="card hero">
     <div class="label" id="period-label">2026년 10월</div>
     <div class="amount"><span id="used">–</span><small>원</small></div>
-    <div class="sub">예산 <b id="budget">–</b>원 <span id="budget-note" style="font-size:12px"></span></div>
+    <div class="sub" id="budget-lines" style="line-height:1.75"></div>
     <div class="bar"><i id="main-bar" style="width:0%"></i></div>
     <div class="pct-row">
       <div class="pct ok" id="pct">–</div>
       <div class="remain"><b id="remain" style="color:var(--text)">–</b>원 남음</div>
     </div>
   </div>
-
-  <div class="sec-title" id="subs-title">구간별 현황</div>
-  <div class="card" style="padding-top:8px;padding-bottom:8px" id="subs"></div>
 
   <div class="sec-title">최근 이용 내역<span class="sec-sub">최근 30일</span></div>
   <div class="card" style="padding-top:6px;padding-bottom:6px">
@@ -167,7 +164,7 @@
     </div>
   </div>
 
-  <footer>토스 모임통장 내역 기준 · 입금은 예산에 합산돼</footer>
+  <footer>토스 모임통장 + 삼성카드 내역 기준</footer>
 </div>
 
 <script>
@@ -181,8 +178,8 @@ function render(d) {
   const [y, m] = d.period.split('-').map(Number);
   $('period-label').textContent = `${y}년 ${m}월`;
   $('used').textContent = fmt(d.used);
-  $('budget').textContent = fmt(d.budget);
-  $('budget-note').textContent = '';
+  $('budget-lines').innerHTML = (d.budget_lines || []).map(b =>
+    `<div>${b.label} <b>${fmt(b.amount)}</b>원</div>`).join('');
   $('remain').textContent = fmt(d.budget - d.used);
   const pctEl = $('pct');
   pctEl.textContent = (d.pct * 100).toFixed(1) + '%';
@@ -190,15 +187,6 @@ function render(d) {
   const bar = $('main-bar');
   bar.style.width = Math.min(100, d.pct * 100) + '%';
   bar.className = barClass(d.pct);
-
-  $('subs-title').textContent =
-    `구간별 현황 (${d.sub_periods.map(s => Math.round(s.limit / 10000) + '만').join(' / ')})`;
-  $('subs').innerHTML = d.sub_periods.map(s => `
-    <div class="sp">
-      <div class="name">${s.name}${s.current ? '<div class="today-badge">오늘</div>' : ''}</div>
-      <div class="track" style="flex:${s.limit} 1 0"><i class="${barClass(s.pct)}" style="width:${Math.min(100, s.pct * 100)}%"></i></div>
-      <div class="num"><b>${fmt(s.used)}</b>원<br>${(s.pct * 100).toFixed(1)}%</div>
-    </div>`).join('');
 
   const sign = t => t === 'spend' ? '−' : '+';
   $('txns').innerHTML = d.recent.length ? d.recent.map(t => `
