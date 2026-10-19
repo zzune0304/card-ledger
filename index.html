@@ -133,7 +133,7 @@
   <div class="card hero">
     <div class="label" id="period-label">2026년 10월</div>
     <div class="amount"><span id="used">–</span><small>원</small></div>
-    <div class="sub" id="budget-lines" style="line-height:1.75"></div>
+    <div class="sub">예산 <b id="budget">–</b>원</div>
     <div class="bar"><i id="main-bar" style="width:0%"></i></div>
     <div class="pct-row">
       <div class="pct ok" id="pct">–</div>
@@ -178,8 +178,7 @@ function render(d) {
   const [y, m] = d.period.split('-').map(Number);
   $('period-label').textContent = `${y}년 ${m}월`;
   $('used').textContent = fmt(d.used);
-  $('budget-lines').innerHTML = (d.budget_lines || []).map(b =>
-    `<div>${b.label} <b>${fmt(b.amount)}</b>원</div>`).join('');
+  $('budget').textContent = fmt(d.budget);
   $('remain').textContent = fmt(d.budget - d.used);
   const pctEl = $('pct');
   pctEl.textContent = (d.pct * 100).toFixed(1) + '%';
