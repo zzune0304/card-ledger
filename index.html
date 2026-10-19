@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>삼성카드 가계부</title>
+<style>
+  :root {
+    --bg: #0d0d14;
+    --card: #17171f;
+    --card2: #1e1e29;
+    --line: rgba(255,255,255,.07);
+    --text: #f4f4f6;
+    --muted: #9a9aad;
+    --accent1: #4cc9f0;
+    --accent2: #4361ee;
+    --green: #2ecc71;
+    --orange: #f4a261;
+    --red: #e63946;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    background-image: radial-gradient(600px 300px at 50% -80px, rgba(67,97,238,.18), transparent);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    padding: 20px 16px 48px;
+  }
+  .wrap { max-width: 560px; margin: 0 auto; }
+  header { display: flex; align-items: center; justify-content: space-between; margin: 8px 4px 18px; }
+  header h1 { font-size: 21px; font-weight: 800; letter-spacing: -.3px; }
+  .live { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--muted); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green);
+         box-shadow: 0 0 0 0 rgba(46,204,113,.6); animation: pulse 2s infinite; }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(46,204,113,.55); }
+    70% { box-shadow: 0 0 0 9px rgba(46,204,113,0); }
+    100% { box-shadow: 0 0 0 0 rgba(46,204,113,0); }
+  }
+  .card {
+    background: linear-gradient(180deg, var(--card2), var(--card));
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 22px 20px;
+    margin-bottom: 14px;
+  }
+  .hero .label { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+  .hero .amount { font-size: 42px; font-weight: 800; letter-spacing: -1px;
+                  font-variant-numeric: tabular-nums; }
+  .hero .amount small { font-size: 20px; font-weight: 600; color: var(--muted); }
+  .hero .sub { margin-top: 6px; font-size: 13.5px; color: var(--muted); }
+  .hero .sub b { color: var(--text); }
+  .bar { height: 14px; border-radius: 99px; background: rgba(255,255,255,.08);
+         margin: 16px 0 10px; overflow: hidden; position: relative; }
+  .bar > i { display: block; height: 100%; border-radius: 99px;
+             background: linear-gradient(90deg, var(--accent1), var(--accent2));
+             transition: width .8s cubic-bezier(.22,1,.36,1); position: relative; }
+  .bar > i.warn { background: linear-gradient(90deg, var(--orange), #e76f51); }
+  .bar > i.danger { background: linear-gradient(90deg, var(--red), #d00000); }
+  .bar > i::after { content: ""; position: absolute; inset: 0; border-radius: 99px;
+    background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,.35) 50%, transparent 70%);
+    animation: shimmer 2.6s infinite; }
+  @keyframes shimmer { 0% { transform: translateX(-100%);} 100% { transform: translateX(100%);} }
+  .pct-row { display: flex; justify-content: space-between; align-items: baseline; }
+  .pct { font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .pct.ok { color: var(--accent1); } .pct.warn { color: var(--orange); } .pct.danger { color: var(--red); }
+  .remain { font-size: 13px; color: var(--muted); }
+  .sec-title { font-size: 15px; font-weight: 700; margin: 22px 4px 10px; }
+  .sp { display: flex; align-items: center; gap: 12px; padding: 13px 0;
+        border-bottom: 1px solid var(--line); }
+  .sp:last-child { border-bottom: none; }
+  .sp .name { font-size: 14px; font-weight: 700; min-width: 74px; }
+  .badge { font-size: 10.5px; font-weight: 700; background: rgba(46,204,113,.16);
+           color: var(--green); border-radius: 99px; padding: 3px 9px; margin-left: 6px;
+           vertical-align: 2px; }
+  .sp .track { flex: 1; height: 9px; border-radius: 99px; background: rgba(255,255,255,.08); overflow: hidden; }
+  .sp .track > i { display: block; height: 100%; border-radius: 99px;
+                   background: linear-gradient(90deg, var(--accent1), var(--accent2));
+                   transition: width .8s cubic-bezier(.22,1,.36,1); }
+  .sp .track > i.warn { background: var(--orange); }
+  .sp .track > i.danger { background: var(--red); }
+  .sp .num { font-size: 12.5px; color: var(--muted); min-width: 118px; text-align: right;
+             font-variant-numeric: tabular-nums; }
+  .sp .num b { color: var(--text); font-size: 13.5px; }
+  .txn { display: flex; align-items: center; padding: 12px 2px; border-bottom: 1px solid var(--line); }
+  .txn:last-child { border-bottom: none; }
+  .txn .d { width: 52px; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .txn .m { flex: 1; font-size: 14.5px; font-weight: 600; }
+  .txn .m span { display: block; font-size: 11.5px; color: var(--muted); font-weight: 400; margin-top: 2px; }
+  .txn .a { font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .txn .a.cancel { color: var(--red); }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th { text-align: left; color: var(--muted); font-weight: 600; font-size: 12px;
+       padding: 8px 4px; border-bottom: 1px solid var(--line); }
+  td { padding: 11px 4px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+  tr:last-child td { border-bottom: none; }
+  td.r, th.r { text-align: right; }
+  .neg { color: var(--green); font-weight: 700; }
+  .pos { color: var(--red); font-weight: 700; }
+  .empty { text-align: center; color: var(--muted); font-size: 13.5px; padding: 18px 0 6px; }
+  footer { text-align: center; color: var(--muted); font-size: 12px; margin-top: 26px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>💳 삼성카드 가계부</h1>
+    <div class="live"><span class="dot"></span><span id="updated">불러오는 중…</span></div>
+  </header>
+
+  <div class="card hero">
+    <div class="label" id="period-label">2026년 10월</div>
+    <div class="amount"><span id="used">–</span><small>원</small></div>
+    <div class="sub">월 한도 <b id="limit">–</b>원 중 사용</div>
+    <div class="bar"><i id="main-bar" style="width:0%"></i></div>
+    <div class="pct-row">
+      <div class="pct ok" id="pct">–</div>
+      <div class="remain"><b id="remain" style="color:var(--text)">–</b>원 남음</div>
+    </div>
+  </div>
+
+  <div class="sec-title">구간별 현황</div>
+  <div class="card" style="padding-top:8px;padding-bottom:8px" id="subs"></div>
+
+  <div class="sec-title">최근 이용 내역</div>
+  <div class="card" style="padding-top:6px;padding-bottom:6px" id="txns"></div>
+
+  <div class="sec-title">월별 성과</div>
+  <div class="card" style="padding-top:6px">
+    <table>
+      <thead><tr><th>월</th><th class="r">예산</th><th class="r">사용</th><th class="r">결과</th></tr></thead>
+      <tbody id="results"></tbody>
+    </table>
+  </div>
+
+  <footer>삼성카드 결제 문자를 전달하면 자동 반영돼</footer>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const fmt = n => n.toLocaleString('ko-KR');
+
+function barClass(p) { return p >= 1 ? 'danger' : p >= .9 ? 'warn' : ''; }
+function pctClass(p) { return p >= 1 ? 'danger' : p >= .9 ? 'warn' : 'ok'; }
+
+function render(d) {
+  const [y, m] = d.period.split('-').map(Number);
+  $('period-label').textContent = `${y}년 ${m}월`;
+  $('used').textContent = fmt(d.used);
+  $('limit').textContent = fmt(d.limit);
+  $('remain').textContent = fmt(d.limit - d.used);
+  const pctEl = $('pct');
+  pctEl.textContent = (d.pct * 100).toFixed(1) + '%';
+  pctEl.className = 'pct ' + pctClass(d.pct);
+  const bar = $('main-bar');
+  bar.style.width = Math.min(100, d.pct * 100) + '%';
+  bar.className = barClass(d.pct);
+
+  $('subs').innerHTML = d.sub_periods.map(s => `
+    <div class="sp">
+      <div class="name">${s.name}${s.current ? '<span class="badge">오늘</span>' : ''}</div>
+      <div class="track"><i class="${barClass(s.pct)}" style="width:${Math.min(100, s.pct * 100)}%"></i></div>
+      <div class="num"><b>${fmt(s.used)}</b>원<br>${(s.pct * 100).toFixed(1)}%</div>
+    </div>`).join('');
+
+  $('txns').innerHTML = d.recent.length ? d.recent.map(t => `
+    <div class="txn">
+      <div class="d">${t.date}</div>
+      <div class="m">${t.merchant}<span>${t.kind}</span></div>
+      <div class="a${t.type === 'cancel' ? ' cancel' : ''}">${t.type === 'cancel' ? '−' : ''}${fmt(t.amount)}원</div>
+    </div>`).join('')
+    : '<div class="empty">아직 이용 내역이 없어.</div>';
+
+  $('results').innerHTML = d.results.length ? d.results.map(r => `
+    <tr><td>${r.label}</td><td class="r">${fmt(r.limit)}원</td><td class="r">${fmt(r.used)}원</td>
+    <td class="r ${r.diff > 0 ? 'pos' : r.diff < 0 ? 'neg' : ''}">${
+      r.diff > 0 ? '+' + fmt(r.diff) + '원' : r.diff < 0 ? '−' + fmt(-r.diff) + '원' : '0원'
+    }</td></tr>`).join('')
+    : '<tr><td colspan="4" class="empty">아직 결산된 달이 없어.</td></tr>';
+
+  const u = new Date(d.updated);
+  $('updated').textContent = `업데이트 ${String(u.getMonth() + 1).padStart(2, '0')}/${String(u.getDate()).padStart(2, '0')} ${String(u.getHours()).padStart(2, '0')}:${String(u.getMinutes()).padStart(2, '0')}`;
+}
+
+async function load() {
+  try {
+    const r = await fetch('data.json?v=' + Date.now(), { cache: 'no-store' });
+    if (r.ok) render(await r.json());
+  } catch (e) { /* 다음 폴링에서 재시도 */ }
+}
+load();
+setInterval(load, 30000);
+</script>
+</body>
+</html>
