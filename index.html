@@ -153,13 +153,7 @@
     <div class="divider"></div>
     <div class="totals">
       <div class="total">
-        <div class="t-label">총 절약</div>
-        <div class="t-val save" id="total-saved">–</div>
-      </div>
-      <div class="t-div"></div>
-      <div class="total">
-        <div class="t-label">총 초과</div>
-        <div class="t-val over" id="total-over">–</div>
+        <div class="t-val" id="total-net">–</div>
       </div>
     </div>
   </div>
@@ -217,8 +211,10 @@ function render(d) {
       <div class="m-val ${mo.kind}">${fmt(mo.amount)}원 ${mo.kind === 'saved' ? '절약' : mo.kind === 'over' ? '초과' : ''}</div>
     </div>`).join('');
 
-  $('total-saved').innerHTML = fmt(d.totals.saved) + '<small>원</small>';
-  $('total-over').innerHTML = fmt(d.totals.over) + '<small>원</small>';
+  const net = d.totals.net;
+  const netEl = $('total-net');
+  netEl.innerHTML = `총 ${fmt(Math.abs(net))}<small>원</small> ${net >= 0 ? '절약' : '초과'}`;
+  netEl.className = 't-val ' + (net >= 0 ? 'save' : 'over');
 
   const u = new Date(d.updated);
   $('updated').textContent = `업데이트 ${String(u.getMonth() + 1).padStart(2, '0')}/${String(u.getDate()).padStart(2, '0')} ${String(u.getHours()).padStart(2, '0')}:${String(u.getMinutes()).padStart(2, '0')}`;
