@@ -74,6 +74,9 @@
   .badge { font-size: 10.5px; font-weight: 700; background: rgba(46,204,113,.16);
            color: var(--green); border-radius: 99px; padding: 3px 9px; margin-left: 6px;
            vertical-align: 2px; }
+  .today-badge { display: table; font-size: 10.5px; font-weight: 700;
+    background: rgba(46,204,113,.16); color: var(--green);
+    border-radius: 99px; padding: 3px 9px; margin-top: 5px; }
   .sp .track { flex: 1; height: 9px; border-radius: 99px; background: rgba(255,255,255,.08); overflow: hidden; }
   .sp .track > i { display: block; height: 100%; border-radius: 99px;
                    background: linear-gradient(90deg, var(--accent1), var(--accent2));
@@ -138,7 +141,7 @@
     </div>
   </div>
 
-  <div class="sec-title">구간별 현황</div>
+  <div class="sec-title" id="subs-title">구간별 현황</div>
   <div class="card" style="padding-top:8px;padding-bottom:8px" id="subs"></div>
 
   <div class="sec-title">최근 이용 내역<span class="sec-sub">최근 30일</span></div>
@@ -188,10 +191,12 @@ function render(d) {
   bar.style.width = Math.min(100, d.pct * 100) + '%';
   bar.className = barClass(d.pct);
 
+  $('subs-title').textContent =
+    `구간별 현황 (${d.sub_periods.map(s => Math.round(s.limit / 10000) + '만').join(' / ')})`;
   $('subs').innerHTML = d.sub_periods.map(s => `
     <div class="sp">
-      <div class="name">${s.name}${s.current ? '<span class="badge">오늘</span>' : ''}</div>
-      <div class="track"><i class="${barClass(s.pct)}" style="width:${Math.min(100, s.pct * 100)}%"></i></div>
+      <div class="name">${s.name}${s.current ? '<div class="today-badge">오늘</div>' : ''}</div>
+      <div class="track" style="flex:${s.limit} 1 0"><i class="${barClass(s.pct)}" style="width:${Math.min(100, s.pct * 100)}%"></i></div>
       <div class="num"><b>${fmt(s.used)}</b>원<br>${(s.pct * 100).toFixed(1)}%</div>
     </div>`).join('');
 
