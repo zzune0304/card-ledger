@@ -90,14 +90,14 @@
   .txn .m span { display: block; font-size: 11.5px; color: var(--muted); font-weight: 400; margin-top: 2px; }
   .txn .a { font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; }
   .txn .a.cancel { color: var(--red); }
-  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
-  th { text-align: left; color: var(--muted); font-weight: 600; font-size: 12px;
-       padding: 8px 4px; border-bottom: 1px solid var(--line); }
-  td { padding: 11px 4px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
-  tr:last-child td { border-bottom: none; }
-  td.r, th.r { text-align: right; }
-  .neg { color: var(--green); font-weight: 700; }
-  .pos { color: var(--red); font-weight: 700; }
+  .totals { display: flex; align-items: stretch; }
+  .total { flex: 1; text-align: center; padding: 8px 0; }
+  .t-div { width: 1px; background: var(--line); margin: 6px 0; }
+  .t-label { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  .t-val { font-size: 30px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -.5px; }
+  .t-val.save { color: #3dff7c; text-shadow: 0 0 18px rgba(61,255,124,.35); }
+  .t-val.over { color: #ff4d5e; text-shadow: 0 0 18px rgba(255,77,94,.35); }
+  .t-val small { font-size: 15px; font-weight: 600; }
   .empty { text-align: center; color: var(--muted); font-size: 13.5px; padding: 18px 0 6px; }
   footer { text-align: center; color: var(--muted); font-size: 12px; margin-top: 26px; }
 </style>
@@ -127,11 +127,18 @@
   <div class="card" style="padding-top:6px;padding-bottom:6px" id="txns"></div>
 
   <div class="sec-title">월별 성과</div>
-  <div class="card" style="padding-top:6px">
-    <table>
-      <thead><tr><th>월</th><th class="r">예산</th><th class="r">사용</th><th class="r">결과</th></tr></thead>
-      <tbody id="results"></tbody>
-    </table>
+  <div class="card">
+    <div class="totals">
+      <div class="total">
+        <div class="t-label">총 절약</div>
+        <div class="t-val save" id="total-saved">–</div>
+      </div>
+      <div class="t-div"></div>
+      <div class="total">
+        <div class="t-label">총 초과</div>
+        <div class="t-val over" id="total-over">–</div>
+      </div>
+    </div>
   </div>
 
   <footer>삼성카드 결제 문자를 전달하면 자동 반영돼</footer>
@@ -172,12 +179,8 @@ function render(d) {
     </div>`).join('')
     : '<div class="empty">아직 이용 내역이 없어.</div>';
 
-  $('results').innerHTML = d.results.length ? d.results.map(r => `
-    <tr><td>${r.label}</td><td class="r">${fmt(r.limit)}원</td><td class="r">${fmt(r.used)}원</td>
-    <td class="r ${r.diff > 0 ? 'pos' : r.diff < 0 ? 'neg' : ''}">${
-      r.diff > 0 ? '+' + fmt(r.diff) + '원' : r.diff < 0 ? '−' + fmt(-r.diff) + '원' : '0원'
-    }</td></tr>`).join('')
-    : '<tr><td colspan="4" class="empty">아직 결산된 달이 없어.</td></tr>';
+  $('total-saved').innerHTML = fmt(d.totals.saved) + '<small>원</small>';
+  $('total-over').innerHTML = fmt(d.totals.over) + '<small>원</small>';
 
   const u = new Date(d.updated);
   $('updated').textContent = `업데이트 ${String(u.getMonth() + 1).padStart(2, '0')}/${String(u.getDate()).padStart(2, '0')} ${String(u.getHours()).padStart(2, '0')}:${String(u.getMinutes()).padStart(2, '0')}`;
