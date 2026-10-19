@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>삼성카드 가계부</title>
+<title>생활비 가계부</title>
 <style>
   :root {
     --bg: #0d0d14;
@@ -89,7 +89,18 @@
   .txn .m { flex: 1; font-size: 14.5px; font-weight: 600; }
   .txn .m span { display: block; font-size: 11.5px; color: var(--muted); font-weight: 400; margin-top: 2px; }
   .txn .a { font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; }
-  .txn .a.cancel { color: var(--red); }
+  .txn .a.spend { color: var(--text); }
+  .txn .a.refund { color: var(--green); }
+  .txn .a.deposit { color: var(--accent1); }
+  .mrow { display: flex; align-items: center; justify-content: space-between;
+          padding: 10px 2px; border-bottom: 1px solid var(--line); }
+  .m-label { font-size: 14px; font-weight: 600; }
+  .m-val { font-size: 14.5px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .m-val.saved { color: #3dff7c; }
+  .m-val.over { color: #ff4d5e; }
+  .m-val.even { color: var(--muted); }
+  .m-sub { font-size: 11.5px; color: var(--muted); margin-top: 2px; font-weight: 400; }
+  .divider { height: 1px; background: var(--line); margin: 14px -20px; }
   .totals { display: flex; align-items: stretch; }
   .total { flex: 1; text-align: center; padding: 8px 0; }
   .t-div { width: 1px; background: var(--line); margin: 6px 0; }
@@ -105,14 +116,14 @@
 <body>
 <div class="wrap">
   <header>
-    <h1>💳 삼성카드 가계부</h1>
+    <h1>🏠 생활비 가계부</h1>
     <div class="live"><span class="dot"></span><span id="updated">불러오는 중…</span></div>
   </header>
 
   <div class="card hero">
     <div class="label" id="period-label">2026년 10월</div>
     <div class="amount"><span id="used">–</span><small>원</small></div>
-    <div class="sub">월 한도 <b id="limit">–</b>원 중 사용</div>
+    <div class="sub">예산 <b id="budget">–</b>원 <span id="budget-note" style="font-size:12px"></span></div>
     <div class="bar"><i id="main-bar" style="width:0%"></i></div>
     <div class="pct-row">
       <div class="pct ok" id="pct">–</div>
@@ -127,7 +138,9 @@
   <div class="card" style="padding-top:6px;padding-bottom:6px" id="txns"></div>
 
   <div class="sec-title">월별 성과</div>
-  <div class="card">
+  <div class="card" style="padding-top:6px;padding-bottom:6px">
+    <div id="months"></div>
+    <div class="divider"></div>
     <div class="totals">
       <div class="total">
         <div class="t-label">총 절약</div>
@@ -141,7 +154,7 @@
     </div>
   </div>
 
-  <footer>삼성카드 결제 문자를 전달하면 자동 반영돼</footer>
+  <footer>토스 모임통장 내역 기준 · 입금은 예산에 합산돼</footer>
 </div>
 
 <script>
@@ -155,8 +168,9 @@ function render(d) {
   const [y, m] = d.period.split('-').map(Number);
   $('period-label').textContent = `${y}년 ${m}월`;
   $('used').textContent = fmt(d.used);
-  $('limit').textContent = fmt(d.limit);
-  $('remain').textContent = fmt(d.limit - d.used);
+  $('budget').textContent = fmt(d.budget);
+  $('budget-note').textContent = `(기본 ${fmt(d.base_limit)}원 + 입금 ${fmt(d.deposits)}원)`;
+  $('remain').textContent = fmt(d.budget - d.used);
   const pctEl = $('pct');
   pctEl.textContent = (d.pct * 100).toFixed(1) + '%';
   pctEl.className = 'pct ' + pctClass(d.pct);
@@ -171,13 +185,22 @@ function render(d) {
       <div class="num"><b>${fmt(s.used)}</b>원<br>${(s.pct * 100).toFixed(1)}%</div>
     </div>`).join('');
 
+  const sign = t => t === 'spend' ? '−' : '+';
   $('txns').innerHTML = d.recent.length ? d.recent.map(t => `
     <div class="txn">
       <div class="d">${t.date}</div>
       <div class="m">${t.merchant}<span>${t.kind}</span></div>
-      <div class="a${t.type === 'cancel' ? ' cancel' : ''}">${t.type === 'cancel' ? '−' : ''}${fmt(t.amount)}원</div>
+      <div class="a ${t.type}">${sign(t.type)}${fmt(t.amount)}원</div>
     </div>`).join('')
     : '<div class="empty">아직 이용 내역이 없어.</div>';
+
+  $('months').innerHTML = d.months.map(mo => `
+    <div class="mrow">
+      <div class="m-label">${mo.label}${mo.current ? '<span class="badge">진행중</span>' : ''}
+        <div class="m-sub">예산 ${fmt(mo.budget)}원 · 사용 ${fmt(mo.used)}원</div>
+      </div>
+      <div class="m-val ${mo.kind}">${fmt(mo.amount)}원 ${mo.kind === 'saved' ? '절약' : mo.kind === 'over' ? '초과' : ''}</div>
+    </div>`).join('');
 
   $('total-saved').innerHTML = fmt(d.totals.saved) + '<small>원</small>';
   $('total-over').innerHTML = fmt(d.totals.over) + '<small>원</small>';
