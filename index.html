@@ -3,231 +3,226 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>생활비 가계부</title>
+<title>삼성카드 가계부</title>
 <style>
-  :root {
-    --bg: #0d0d14;
-    --card: #17171f;
-    --card2: #1e1e29;
-    --line: rgba(255,255,255,.07);
-    --text: #f4f4f6;
-    --muted: #9a9aad;
-    --accent1: #4cc9f0;
-    --accent2: #4361ee;
-    --green: #2ecc71;
-    --orange: #f4a261;
-    --red: #e63946;
+  :root{
+    --bg:#0b0e14; --card:#151a24; --line:#232a38;
+    --text:#e8ecf3; --sub:#8b94a7;
+    --green:#3dff7c; --red:#ff4d5e; --gold:#ffd479; --blue:#57b6ff;
   }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    background: var(--bg);
-    background-image: radial-gradient(600px 300px at 50% -80px, rgba(67,97,238,.18), transparent);
-    color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
-    -webkit-font-smoothing: antialiased;
-    padding: 20px 16px 48px;
-  }
-  .wrap { max-width: 560px; margin: 0 auto; }
-  header { display: flex; align-items: center; justify-content: space-between; margin: 8px 4px 18px; }
-  header h1 { font-size: 21px; font-weight: 800; letter-spacing: -.3px; }
-  .live { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--muted); }
-  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green);
-         box-shadow: 0 0 0 0 rgba(46,204,113,.6); animation: pulse 2s infinite; }
-  @keyframes pulse {
-    0% { box-shadow: 0 0 0 0 rgba(46,204,113,.55); }
-    70% { box-shadow: 0 0 0 9px rgba(46,204,113,0); }
-    100% { box-shadow: 0 0 0 0 rgba(46,204,113,0); }
-  }
-  .card {
-    background: linear-gradient(180deg, var(--card2), var(--card));
-    border: 1px solid var(--line);
-    border-radius: 20px;
-    padding: 22px 20px;
-    margin-bottom: 14px;
-  }
-  .hero .label { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
-  .hero .amount { font-size: 42px; font-weight: 800; letter-spacing: -1px;
-                  font-variant-numeric: tabular-nums; }
-  .hero .amount small { font-size: 20px; font-weight: 600; color: var(--muted); }
-  .hero .sub { margin-top: 6px; font-size: 13.5px; color: var(--muted); }
-  .hero .sub b { color: var(--text); }
-  .bar { height: 14px; border-radius: 99px; background: rgba(255,255,255,.08);
-         margin: 16px 0 10px; overflow: hidden; position: relative; }
-  .bar > i { display: block; height: 100%; border-radius: 99px;
-             background: linear-gradient(90deg, var(--accent1), var(--accent2));
-             transition: width .8s cubic-bezier(.22,1,.36,1); position: relative; }
-  .bar > i.warn { background: linear-gradient(90deg, var(--orange), #e76f51); }
-  .bar > i.danger { background: linear-gradient(90deg, var(--red), #d00000); }
-  .bar > i::after { content: ""; position: absolute; inset: 0; border-radius: 99px;
-    background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,.35) 50%, transparent 70%);
-    animation: shimmer 2.6s infinite; }
-  @keyframes shimmer { 0% { transform: translateX(-100%);} 100% { transform: translateX(100%);} }
-  .pct-row { display: flex; justify-content: space-between; align-items: baseline; }
-  .pct { font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums; }
-  .pct.ok { color: var(--accent1); } .pct.warn { color: var(--orange); } .pct.danger { color: var(--red); }
-  .remain { font-size: 13px; color: var(--muted); }
-  .sec-title { font-size: 15px; font-weight: 700; margin: 22px 4px 10px; }
-  .sp { display: flex; align-items: center; gap: 12px; padding: 13px 0;
-        border-bottom: 1px solid var(--line); }
-  .sp:last-child { border-bottom: none; }
-  .sp .name { font-size: 14px; font-weight: 700; min-width: 74px; }
-  .badge { font-size: 10.5px; font-weight: 700; background: rgba(46,204,113,.16);
-           color: var(--green); border-radius: 99px; padding: 3px 9px; margin-left: 6px;
-           vertical-align: 2px; }
-  .today-badge { display: table; font-size: 10.5px; font-weight: 700;
-    background: rgba(46,204,113,.16); color: var(--green);
-    border-radius: 99px; padding: 3px 9px; margin-top: 5px; }
-  .sp .track { flex: 1; height: 9px; border-radius: 99px; background: rgba(255,255,255,.08); overflow: hidden; }
-  .sp .track > i { display: block; height: 100%; border-radius: 99px;
-                   background: linear-gradient(90deg, var(--accent1), var(--accent2));
-                   transition: width .8s cubic-bezier(.22,1,.36,1); }
-  .sp .track > i.warn { background: var(--orange); }
-  .sp .track > i.danger { background: var(--red); }
-  .sp .num { font-size: 12.5px; color: var(--muted); min-width: 118px; text-align: right;
-             font-variant-numeric: tabular-nums; }
-  .sp .num b { color: var(--text); font-size: 13.5px; }
-  .txn { display: flex; align-items: center; padding: 12px 2px; border-bottom: 1px solid var(--line); }
-  .txn:last-child { border-bottom: none; }
-  .txn .d { width: 52px; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
-  .txn .m { flex: 1; font-size: 14.5px; font-weight: 600; }
-  .txn .m span { display: block; font-size: 11.5px; color: var(--muted); font-weight: 400; margin-top: 2px; }
-  .txn .a { font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; }
-  .txn .a.spend { color: var(--text); }
-  .txn .a.refund { color: var(--green); }
-  .txn .a.deposit { color: var(--accent1); }
-  .mrow { display: flex; align-items: center; justify-content: space-between;
-          padding: 10px 2px; border-bottom: 1px solid var(--line); }
-  .m-label { font-size: 14px; font-weight: 600; }
-  .m-val { font-size: 14.5px; font-weight: 800; font-variant-numeric: tabular-nums; }
-  .m-val.saved { color: #3dff7c; }
-  .m-val.over { color: #ff4d5e; }
-  .m-val.even { color: var(--muted); }
-  .m-sub { font-size: 11.5px; color: var(--muted); margin-top: 2px; font-weight: 400; }
-  .more-btn { width: 100%; margin: 10px 0 4px; padding: 12px; border: 1px solid var(--line);
-    border-radius: 12px; background: rgba(255,255,255,.04); color: var(--muted);
-    font-size: 13.5px; font-weight: 600; cursor: pointer; }
-  .more-btn:active { background: rgba(255,255,255,.09); }
-  #txns .txn:nth-child(n+11) { display: none; }
-  #txns.expanded .txn:nth-child(n+11) { display: flex; }
-  .sec-sub { font-size: 12px; color: var(--muted); font-weight: 400; margin-left: 6px; }
-  .divider { height: 1px; background: var(--line); margin: 14px -20px; }
-  .totals { display: flex; align-items: stretch; }
-  .total { flex: 1; text-align: center; padding: 8px 0; }
-  .t-div { width: 1px; background: var(--line); margin: 6px 0; }
-  .t-label { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
-  .t-val { font-size: 30px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -.5px; }
-  .t-val.save { color: #3dff7c; text-shadow: 0 0 18px rgba(61,255,124,.35); }
-  .t-val.over { color: #ff4d5e; text-shadow: 0 0 18px rgba(255,77,94,.35); }
-  .t-val small { font-size: 15px; font-weight: 600; }
-  .empty { text-align: center; color: var(--muted); font-size: 13.5px; padding: 18px 0 6px; }
-  footer { text-align: center; color: var(--muted); font-size: 12px; margin-top: 26px; }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+    padding:20px 16px 48px;max-width:560px;margin:0 auto}
+  header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+  h1{font-size:19px;font-weight:800;letter-spacing:-.02em}
+  #syncBtn{background:var(--card);border:1px solid var(--line);color:var(--text);
+    font-size:13px;font-weight:700;padding:8px 14px;border-radius:999px;cursor:pointer}
+  #syncBtn:active{transform:scale(.97)}
+  #syncBtn:disabled{opacity:.5}
+  .status{font-size:12px;color:var(--sub);margin-bottom:16px;min-height:16px}
+  .status.err{color:var(--red)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;
+    padding:20px;margin-bottom:14px}
+  .hero-label{font-size:13px;color:var(--sub);font-weight:600;margin-bottom:6px}
+  .hero-amount{font-size:38px;font-weight:800;letter-spacing:-.03em;line-height:1.1}
+  .hero-sub{font-size:13px;color:var(--sub);margin-top:8px}
+  .hero-sub b{color:var(--text)}
+  .sec-title{font-size:14px;font-weight:800;margin-bottom:14px}
+  .cat-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:13px}
+  .cat-row:last-child{margin-bottom:0}
+  .cat-name{width:76px;flex:none;color:var(--text);font-weight:600;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cat-bar{flex:1;height:8px;background:#0d1017;border-radius:99px;overflow:hidden}
+  .cat-fill{height:100%;background:var(--gold);border-radius:99px}
+  .cat-amt{width:92px;flex:none;text-align:right;font-weight:700}
+  .tx{display:flex;justify-content:space-between;align-items:center;
+    padding:11px 0;border-bottom:1px solid var(--line)}
+  .tx:last-child{border-bottom:none}
+  .tx-left{min-width:0}
+  .tx-merchant{font-size:14px;font-weight:700;white-space:nowrap;
+    overflow:hidden;text-overflow:ellipsis}
+  .tx-meta{font-size:11.5px;color:var(--sub);margin-top:2px}
+  .tx-right{text-align:right;flex:none;margin-left:12px}
+  .tx-amt{font-size:14.5px;font-weight:800}
+  .tx-amt.cancel{color:var(--red)}
+  .badge{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 7px;
+    border-radius:99px;margin-left:6px;vertical-align:1px}
+  .badge.ok{background:rgba(87,182,255,.15);color:var(--blue)}
+  .badge.no{background:rgba(255,77,94,.15);color:var(--red)}
+  .badge.etc{background:rgba(139,148,167,.15);color:var(--sub)}
+  #moreBtn{width:100%;background:none;border:1px solid var(--line);color:var(--sub);
+    font-size:13px;font-weight:700;padding:11px;border-radius:12px;cursor:pointer;margin-top:6px}
+  .empty{font-size:13px;color:var(--sub);text-align:center;padding:14px 0}
+  footer{font-size:11px;color:var(--sub);text-align:center;margin-top:20px;line-height:1.6}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <h1>🏠 생활비 가계부</h1>
-    <div class="live"><span class="dot"></span><span id="updated">불러오는 중…</span></div>
-  </header>
+<header>
+  <h1>💳 삼성카드 가계부</h1>
+  <button id="syncBtn" type="button">⟳ 동기화</button>
+</header>
+<div class="status" id="status">불러오는 중…</div>
 
-  <div class="card hero">
-    <div class="label" id="period-label">2026년 10월</div>
-    <div class="amount"><span id="used">–</span><small>원</small></div>
-    <div class="sub">예산 <b id="budget">–</b>원</div>
-    <div class="bar"><i id="main-bar" style="width:0%"></i></div>
-    <div class="pct-row">
-      <div class="pct ok" id="pct">–</div>
-      <div class="remain"><b id="remain" style="color:var(--text)">–</b>원 남음</div>
-    </div>
-  </div>
+<section class="card">
+  <div class="hero-label" id="heroLabel">이번 달 총지출</div>
+  <div class="hero-amount" id="heroAmount">- 원</div>
+  <div class="hero-sub" id="heroSub"></div>
+</section>
 
-  <div class="sec-title">최근 이용 내역<span class="sec-sub">최근 30일</span></div>
-  <div class="card" style="padding-top:6px;padding-bottom:6px">
-    <div id="txns"></div>
-    <button id="more-btn" class="more-btn" style="display:none"></button>
-  </div>
+<section class="card">
+  <div class="sec-title">분류별 합계 (이번 달)</div>
+  <div id="catList"><div class="empty">내역이 없어요</div></div>
+</section>
 
-  <div class="sec-title">월별 성과</div>
-  <div class="card" style="padding-top:6px;padding-bottom:6px">
-    <div id="months"></div>
-    <div class="divider"></div>
-    <div class="totals">
-      <div class="total">
-        <div class="t-val" id="total-net">–</div>
-      </div>
-    </div>
-  </div>
+<section class="card">
+  <div class="sec-title">최근 이용 내역</div>
+  <div id="txList"><div class="empty">불러오는 중…</div></div>
+  <button id="moreBtn" type="button" style="display:none">더 보기</button>
+</section>
 
-  <footer>토스 모임통장 + 삼성카드 내역 기준</footer>
-</div>
+<footer>데이터는 구글 시트에서 바로 읽어와요.<br>새로고침하면 최신 내역으로 다시 불러옵니다.</footer>
 
 <script>
+/* ============================================================
+   설정 — 여기 두 값만 바꾸면 됩니다.
+   APPS_SCRIPT_URL : Apps Script 웹앱 배포 주소 (…/exec)
+   ACCESS_KEY      : Apps Script 코드의 SECRET 값과 동일하게
+   ============================================================ */
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxK-3uZEv9hMB76sBQcz3XH8e-PDjbbZnIFNzPgONUxhEAFq1PHvb-EugxnSJMRkFFI/exec";
+const ACCESS_KEY = "0630";
+/* ============================================================ */
+
+const PAGE = 10;
+let allRows = [];     // 정규화된 전체 행 (최신순)
+let showAll = false;
+
 const $ = id => document.getElementById(id);
-const fmt = n => n.toLocaleString('ko-KR');
+const won = n => n.toLocaleString("ko-KR") + "원";
 
-function barClass(p) { return p >= 1 ? 'danger' : p >= .9 ? 'warn' : ''; }
-function pctClass(p) { return p >= 1 ? 'danger' : p >= .9 ? 'warn' : 'ok'; }
-
-function render(d) {
-  const [y, m] = d.period.split('-').map(Number);
-  $('period-label').textContent = `${y}년 ${m}월`;
-  $('used').textContent = fmt(d.used);
-  $('budget').textContent = fmt(d.budget);
-  $('remain').textContent = fmt(d.budget - d.used);
-  const pctEl = $('pct');
-  pctEl.textContent = (d.pct * 100).toFixed(1) + '%';
-  pctEl.className = 'pct ' + pctClass(d.pct);
-  const bar = $('main-bar');
-  bar.style.width = Math.min(100, d.pct * 100) + '%';
-  bar.className = barClass(d.pct);
-
-  const sign = t => t === 'spend' ? '−' : '+';
-  $('txns').innerHTML = d.recent.length ? d.recent.map(t => `
-    <div class="txn">
-      <div class="d">${t.date}</div>
-      <div class="m">${t.merchant}<span>${t.kind}</span></div>
-      <div class="a ${t.type}">${sign(t.type)}${fmt(t.amount)}원</div>
-    </div>`).join('')
-    : '<div class="empty">최근 30일 이용 내역이 없어.</div>';
-  const extra = d.recent.length - 10;
-  const btn = $('more-btn');
-  if (extra > 0) {
-    btn.style.display = 'block';
-    const syncBtn = () => {
-      btn.textContent = $('txns').classList.contains('expanded') ? '접기' : `더보기 (${extra}개)`;
-    };
-    btn.onclick = () => { $('txns').classList.toggle('expanded'); syncBtn(); };
-    syncBtn();
-  } else {
-    btn.style.display = 'none';
-    $('txns').classList.remove('expanded');
+/* 시간 파싱: ISO 문자열(2026-10-20T08:28:44.000Z) 또는 "2026. 10. 20 오후 5:28:44" */
+function parseTime(s) {
+  s = String(s || "");
+  if (/^\d{4}-\d{2}-\d{2}T/.test(s)) {
+    const d = new Date(s);
+    return isNaN(d) ? null : d;
   }
-
-  $('months').innerHTML = d.months.map(mo => `
-    <div class="mrow">
-      <div class="m-label">${mo.label}${mo.current ? '<span class="badge">진행중</span>' : ''}
-        <div class="m-sub">예산 ${fmt(mo.budget)}원 · 사용 ${fmt(mo.used)}원</div>
-      </div>
-      <div class="m-val ${mo.kind}">${fmt(mo.amount)}원 ${mo.kind === 'saved' ? '절약' : mo.kind === 'over' ? '초과' : ''}</div>
-    </div>`).join('');
-
-  const net = d.totals.net;
-  const netEl = $('total-net');
-  netEl.innerHTML = `총 ${fmt(Math.abs(net))}<small>원</small> ${net >= 0 ? '절약' : '초과'}`;
-  netEl.className = 't-val ' + (net >= 0 ? 'save' : 'over');
-
-  const u = new Date(d.updated);
-  $('updated').textContent = `업데이트 ${String(u.getMonth() + 1).padStart(2, '0')}/${String(u.getDate()).padStart(2, '0')} ${String(u.getHours()).padStart(2, '0')}:${String(u.getMinutes()).padStart(2, '0')}`;
+  const m = s.match(/(\d{4})\.\s*(\d{1,2})\.\s*(\d{1,2})\s*(오전|오후)\s*(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+  if (!m) return null;
+  let h = parseInt(m[5], 10);
+  if (m[4] === "오후" && h < 12) h += 12;
+  if (m[4] === "오전" && h === 12) h = 0;
+  return new Date(+m[1], +m[2] - 1, +m[3], h, +m[6], +(m[7] || 0));
 }
 
-async function load() {
+/* 가맹점 칸이 비어 있으면 문자 원문에서 추출 ("10/20 17:28 쿠팡") */
+function merchantFromRaw(raw) {
+  const lines = String(raw || "").split("\n");
+  for (const ln of lines) {
+    const m = ln.trim().match(/^\d{2}\/\d{2}\s+\d{2}:\d{2}\s+(.+)$/);
+    if (m) return m[1].trim();
+  }
+  return "";
+}
+
+function normalize(r) {
+  const raw = r["원문"] || "";
+  const merchantCol = (r["가맹점"] || "").trim();
+  const merchant = merchantCol || merchantFromRaw(raw) || "(가맹점 없음)";
+  const amount = parseInt(String(r["금액"] ?? "").replace(/[^0-9]/g, ""), 10) || 0;
+  const status = (r["상태"] || "").trim();       // 승인 / 취소 / 기타
+  const dt = parseTime(r["시간"]);
+  const isTest = /test|테스트/i.test(raw) || /test|테스트/i.test(merchant);
+  return {
+    dt, amount, status, merchant,
+    method: (r["결제방식"] || "").trim(),
+    category: (r["분류"] || "").trim() || "미분류",
+    isTest
+  };
+}
+
+async function syncData() {
+  const btn = $("syncBtn");
+  btn.disabled = true;
+  $("status").textContent = "불러오는 중…";
+  $("status").className = "status";
   try {
-    const r = await fetch('data.json?v=' + Date.now(), { cache: 'no-store' });
-    if (r.ok) render(await r.json());
-  } catch (e) { /* 다음 폴링에서 재시도 */ }
+    const url = APPS_SCRIPT_URL + "?key=" + encodeURIComponent(ACCESS_KEY) + "&mode=list";
+    const res = await fetch(url);
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || "forbidden");
+    allRows = (data.rows || []).map(normalize)
+      .filter(r => r.dt && !r.isTest)
+      .sort((a, b) => b.dt - a.dt);
+    render();
+    const now = new Date();
+    $("status").textContent = "마지막 동기화 " +
+      String(now.getHours()).padStart(2, "0") + ":" +
+      String(now.getMinutes()).padStart(2, "0") + ":" +
+      String(now.getSeconds()).padStart(2, "0");
+  } catch (e) {
+    $("status").textContent = "불러오기 실패 — 잠시 후 동기화를 다시 눌러주세요";
+    $("status").className = "status err";
+  }
+  btn.disabled = false;
 }
-load();
-setInterval(load, 30000);
+
+function render() {
+  const now = new Date();
+  const ym = now.getFullYear() * 100 + (now.getMonth() + 1);
+  const thisMonth = allRows.filter(r => r.dt.getFullYear() * 100 + (r.dt.getMonth() + 1) === ym);
+
+  /* 이번 달 합계: 승인 +, 취소 −, 기타 제외 */
+  let total = 0, okCnt = 0, cancelCnt = 0, cancelAmt = 0;
+  const cats = {};
+  for (const r of thisMonth) {
+    if (r.status === "승인") { total += r.amount; okCnt++; cats[r.category] = (cats[r.category] || 0) + r.amount; }
+    else if (r.status === "취소") { total -= r.amount; cancelCnt++; cancelAmt += r.amount; cats[r.category] = (cats[r.category] || 0) - r.amount; }
+  }
+  $("heroLabel").textContent = (now.getMonth() + 1) + "월 총지출";
+  $("heroAmount").textContent = won(total);
+  $("heroSub").innerHTML = "승인 <b>" + okCnt + "건</b>" +
+    (cancelCnt ? " · 취소 <b>" + cancelCnt + "건</b> (−" + won(cancelAmt) + ")" : "");
+
+  /* 분류별 */
+  const catArr = Object.entries(cats).sort((a, b) => b[1] - a[1]);
+  const maxCat = catArr.length ? Math.max(...catArr.map(c => Math.abs(c[1]))) : 0;
+  $("catList").innerHTML = catArr.length ? catArr.map(([name, amt]) =>
+    '<div class="cat-row"><div class="cat-name">' + esc(name) + '</div>' +
+    '<div class="cat-bar"><div class="cat-fill" style="width:' +
+      (maxCat ? Math.max(4, Math.abs(amt) / maxCat * 100) : 0) + '%"></div></div>' +
+    '<div class="cat-amt">' + won(amt) + '</div></div>').join("")
+    : '<div class="empty">이번 달 내역이 없어요</div>';
+
+  /* 최근 내역 */
+  const show = showAll ? allRows : allRows.slice(0, PAGE);
+  $("txList").innerHTML = show.length ? show.map(r => {
+    const d = r.dt;
+    const dateStr = (d.getMonth() + 1) + "/" + d.getDate() + " " +
+      String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+    const badge = r.status === "승인" ? '<span class="badge ok">승인</span>'
+      : r.status === "취소" ? '<span class="badge no">취소</span>'
+      : '<span class="badge etc">' + esc(r.status || "기타") + '</span>';
+    const sign = r.status === "취소" ? "−" : "";
+    return '<div class="tx"><div class="tx-left">' +
+      '<div class="tx-merchant">' + esc(r.merchant) + badge + '</div>' +
+      '<div class="tx-meta">' + dateStr + (r.method ? " · " + esc(r.method) : "") +
+      (r.category !== "미분류" ? " · " + esc(r.category) : "") + '</div></div>' +
+      '<div class="tx-right"><div class="tx-amt' + (r.status === "취소" ? " cancel" : "") + '">' +
+      sign + won(r.amount) + '</div></div></div>';
+  }).join("") : '<div class="empty">내역이 없어요</div>';
+  $("moreBtn").style.display = (!showAll && allRows.length > PAGE) ? "block" : "none";
+}
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  }[c]));
+}
+
+$("syncBtn").addEventListener("click", syncData);
+$("moreBtn").addEventListener("click", () => { showAll = true; render(); });
+syncData();
 </script>
 </body>
 </html>
