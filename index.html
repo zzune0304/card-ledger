@@ -39,8 +39,9 @@
   .sec-title{font-size:14px;font-weight:800;margin-bottom:14px}
   .cat-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:13px}
   .cat-row:last-child{margin-bottom:0}
-  .cat-name{width:76px;flex:none;color:var(--text);font-weight:600;
+  .cat-name{flex:1.1;color:var(--text);font-weight:600;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rank{width:20px;flex:none;font-weight:800;color:var(--gold);font-size:13.5px}
   .cat-bar{flex:1;height:8px;background:#0d1017;border-radius:99px;overflow:hidden}
   .cat-fill{height:100%;background:var(--gold);border-radius:99px}
   .cat-amt{width:92px;flex:none;text-align:right;font-weight:700}
@@ -82,7 +83,7 @@
 </section>
 
 <section class="card">
-  <div class="sec-title">분류별 합계 (이번 달)</div>
+  <div class="sec-title">이번 달 많이 쓴 곳 TOP 5</div>
   <div id="catList"><div class="empty">내역이 없어요</div></div>
 </section>
 
@@ -187,10 +188,9 @@ function render() {
 
   /* 이번 달 합계: 승인 +, 취소 −, 기타 제외 */
   let total = 0, okCnt = 0, cancelCnt = 0, cancelAmt = 0;
-  const cats = {};
   for (const r of thisMonth) {
-    if (r.status === "승인") { total += r.amount; okCnt++; cats[r.category] = (cats[r.category] || 0) + r.amount; }
-    else if (r.status === "취소") { total -= r.amount; cancelCnt++; cancelAmt += r.amount; cats[r.category] = (cats[r.category] || 0) - r.amount; }
+    if (r.status === "승인") { total += r.amount; okCnt++; }
+    else if (r.status === "취소") { total -= r.amount; cancelCnt++; cancelAmt += r.amount; }
   }
   $("heroLabel").textContent = (now.getMonth() + 1) + "월 총지출";
   $("heroAmount").textContent = won(total);
@@ -211,15 +211,30 @@ function render() {
     : "남은 금액 " + won(budget - total);
   $("budgetRemain").className = "budget-remain" + (over ? " over" : "");
 
-  /* 분류별 */
-  const catArr = Object.entries(cats).sort((a, b) => b[1] - a[1]);
-  const maxCat = catArr.length ? Math.max(...catArr.map(c => Math.abs(c[1]))) : 0;
-  $("catList").innerHTML = catArr.length ? catArr.map(([name, amt]) =>
-    '<div class="cat-row"><div class="cat-name">' + esc(name) + '</div>' +
+  /* 많이 쓴 곳 TOP 5 (이번 달, 가맹점별 승인−취소 합계, 내림차순) */
+  const byMerchant = {};
+  for (const r of thisMonth) {
+    if (r.status === "승인") byMerchant[r.merchant] = (byMerchant[r.merchant] || 0) + r.amount;
+    else if (r.status === "취소") byMerchant[r.merchant] = (byMerchant[r.merchant] || 0) - r.amount;
+  }
+  const mArr = Object.entries(byMerchant).filter(([, a]) => a !== 0).sort((a, b) => b[1] - a[1]);
+  const top5 = mArr.slice(0, 5);
+  const rest = mArr.slice(5);
+  const restSum = rest.reduce((s, [, a]) => s + a, 0);
+  const maxM = top5.length ? Math.max(...top5.map(([, a]) => Math.abs(a))) : 0;
+  const barRow = (rankHtml, name, amt, dim) =>
+    '<div class="cat-row">' + rankHtml +
+    '<div class="cat-name"' + (dim ? ' style="color:var(--sub)"' : '') + '>' + esc(name) + '</div>' +
     '<div class="cat-bar"><div class="cat-fill" style="width:' +
-      (maxCat ? Math.max(4, Math.abs(amt) / maxCat * 100) : 0) + '%"></div></div>' +
-    '<div class="cat-amt">' + won(amt) + '</div></div>').join("")
-    : '<div class="empty">이번 달 내역이 없어요</div>';
+      (maxM ? Math.max(4, Math.abs(amt) / maxM * 100) : 0) + '%' +
+      (dim ? ';background:var(--sub)' : '') + '"></div></div>' +
+    '<div class="cat-amt">' + won(amt) + '</div></div>';
+  let topHtml = top5.map(([name, amt], i) =>
+    barRow('<div class="rank">' + (i + 1) + '</div>', name, amt, false)).join("");
+  if (rest.length && restSum !== 0) {
+    topHtml += barRow('<div class="rank"></div>', "기타 " + rest.length + "곳", restSum, true);
+  }
+  $("catList").innerHTML = topHtml || '<div class="empty">이번 달 내역이 없어요</div>';
 
   /* 최근 내역 */
   const show = showAll ? allRows : allRows.slice(0, PAGE);
