@@ -27,6 +27,7 @@
   .hero-label{font-size:13px;color:var(--sub);font-weight:600;margin-bottom:6px}
   .hero-top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
   .hero-amount{font-size:38px;font-weight:800;letter-spacing:-.03em;line-height:1.1}
+  .hero-amount.over{color:var(--red)}
   .dday{font-size:32px;font-weight:800;color:var(--gold);flex:none;letter-spacing:-.02em;line-height:1.1}
   .hero-sub{font-size:13px;color:var(--sub);margin-top:8px}
   .hero-sub b{color:var(--text)}
@@ -37,9 +38,7 @@
   .bar-fill{height:100%;background:var(--green);border-radius:99px;transition:width .4s ease}
   .bar-fill.over{background:var(--red)}
   .budget-remain{font-size:17px;font-weight:700;color:var(--text);margin-top:9px}
-  .budget-remain b{color:var(--green)}
-  .budget-remain.over{color:var(--red)}
-  .budget-remain.over b{color:var(--red)}
+  .budget-remain b{color:var(--text)}
   .sec-title{font-size:14px;font-weight:800;margin-bottom:14px}
   .cat-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:13px}
   .cat-row:last-child{margin-bottom:0}
@@ -78,7 +77,7 @@
 <div class="status" id="status">불러오는 중…</div>
 
 <section class="card">
-  <div class="hero-label" id="heroLabel">이번 달 총지출</div>
+  <div class="hero-label" id="heroLabel">이번 달 남은 금액</div>
   <div class="hero-top">
     <div class="hero-amount" id="heroAmount">- 원</div>
     <div class="dday" id="dday"></div>
@@ -199,10 +198,6 @@ function render() {
     if (r.status === "승인") { total += r.amount; okCnt++; }
     else if (r.status === "취소") { total -= r.amount; cancelCnt++; cancelAmt += r.amount; }
   }
-  $("heroLabel").textContent = (now.getMonth() + 1) + "월 총지출";
-  $("heroAmount").textContent = won(total);
-  const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-  $("dday").textContent = "D-" + (lastDay - now.getDate() + 1);
   $("heroSub").innerHTML = "승인 <b>" + okCnt + "건</b>" +
     (cancelCnt ? " · 취소 <b>" + cancelCnt + "건</b> (−" + won(cancelAmt) + ")" : "");
 
@@ -215,9 +210,17 @@ function render() {
   $("budgetPct").textContent = pct.toFixed(1) + "% 사용";
   $("budgetFill").style.width = Math.min(100, pct) + "%";
   $("budgetFill").className = "bar-fill" + (over ? " over" : "");
-  $("budgetRemain").innerHTML = over
-    ? "예산보다 <b>" + won(total - budget) + "</b> 초과했어요"
-    : "남은 금액 <b>" + won(budget - total) + "</b>";
+
+  /* 메인 숫자 = 남은 금액 (초과 시 마이너스·빨강) */
+  $("heroLabel").textContent = over
+    ? (now.getMonth() + 1) + "월 예산 초과"
+    : (now.getMonth() + 1) + "월 남은 금액";
+  const remaining = budget - total;
+  $("heroAmount").textContent = remaining >= 0 ? won(remaining) : "−" + won(-remaining);
+  $("heroAmount").className = "hero-amount" + (over ? " over" : "");
+  const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  $("dday").textContent = "D-" + (lastDay - now.getDate() + 1);
+  $("budgetRemain").innerHTML = "총지출 <b>" + won(total) + "</b>";
   $("budgetRemain").className = "budget-remain" + (over ? " over" : "");
 
   /* 많이 쓴 곳 TOP 5 (이번 달, 가맹점별 승인−취소 합계, 내림차순) */
