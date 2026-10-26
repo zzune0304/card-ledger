@@ -222,7 +222,7 @@ function render() {
   $("heroAmount").className = "hero-amount" + (over ? " over" : "");
   const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
   $("dday").textContent = "D-" + (lastDay - now.getDate() + 1);
-  $("budgetRemain").innerHTML = "총지출 <b>" + won(total) + "</b>";
+  $("budgetRemain").innerHTML = "총 지출 <b>" + won(total) + "</b>";
   $("budgetRemain").className = "budget-remain" + (over ? " over" : "");
 
   /* 많이 쓴 곳 TOP 5 (이번 달, 가맹점별 승인−취소 합계, 내림차순) */
