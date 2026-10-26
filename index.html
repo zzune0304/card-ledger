@@ -24,7 +24,8 @@
   .status.err{color:var(--red)}
   .card{background:var(--card);border:1px solid var(--line);border-radius:18px;
     padding:20px;margin-bottom:14px}
-  .hero-label{font-size:13px;color:var(--sub);font-weight:600;margin-bottom:6px}
+  .hero-label{font-size:14px;color:var(--gold);font-weight:800;margin-bottom:6px}
+  .hero-label.over{color:var(--red)}
   .hero-top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
   .hero-amount{font-size:38px;font-weight:800;letter-spacing:-.03em;line-height:1.1}
   .hero-amount.over{color:var(--red)}
@@ -215,6 +216,7 @@ function render() {
   $("heroLabel").textContent = over
     ? (now.getMonth() + 1) + "월 예산 초과"
     : (now.getMonth() + 1) + "월 남은 금액";
+  $("heroLabel").className = "hero-label" + (over ? " over" : "");
   const remaining = budget - total;
   $("heroAmount").textContent = remaining >= 0 ? won(remaining) : "−" + won(-remaining);
   $("heroAmount").className = "hero-amount" + (over ? " over" : "");
