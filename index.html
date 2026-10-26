@@ -38,7 +38,7 @@
   .bar{height:10px;background:#0d1017;border-radius:99px;overflow:hidden;margin-top:7px}
   .bar-fill{height:100%;background:var(--green);border-radius:99px;transition:width .4s ease}
   .bar-fill.over{background:var(--red)}
-  .budget-remain{font-size:17px;font-weight:700;color:var(--text);margin-top:9px}
+  .budget-remain{font-size:12.5px;font-weight:600;color:var(--sub);margin-top:7px}
   .budget-remain b{color:var(--text)}
   .sec-title{font-size:14px;font-weight:800;margin-bottom:14px}
   .cat-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:13px}
@@ -208,7 +208,7 @@ function render() {
   const pct = budget > 0 ? (total / budget * 100) : 0;
   const over = total > budget;
   $("budgetLabel").innerHTML = "월 예산 <b>" + won(budget) + "</b>";
-  $("budgetPct").textContent = pct.toFixed(1) + "% 사용";
+  $("budgetPct").textContent = Math.round(pct) + "% 사용";
   $("budgetFill").style.width = Math.min(100, pct) + "%";
   $("budgetFill").className = "bar-fill" + (over ? " over" : "");
 
