@@ -25,7 +25,9 @@
   .card{background:var(--card);border:1px solid var(--line);border-radius:18px;
     padding:20px;margin-bottom:14px}
   .hero-label{font-size:13px;color:var(--sub);font-weight:600;margin-bottom:6px}
+  .hero-top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
   .hero-amount{font-size:38px;font-weight:800;letter-spacing:-.03em;line-height:1.1}
+  .dday{font-size:32px;font-weight:800;color:var(--gold);flex:none;letter-spacing:-.02em;line-height:1.1}
   .hero-sub{font-size:13px;color:var(--sub);margin-top:8px}
   .hero-sub b{color:var(--text)}
   .budget-row{display:flex;justify-content:space-between;font-size:12.5px;
@@ -75,7 +77,10 @@
 
 <section class="card">
   <div class="hero-label" id="heroLabel">이번 달 총지출</div>
-  <div class="hero-amount" id="heroAmount">- 원</div>
+  <div class="hero-top">
+    <div class="hero-amount" id="heroAmount">- 원</div>
+    <div class="dday" id="dday"></div>
+  </div>
   <div class="hero-sub" id="heroSub"></div>
   <div class="budget-row"><span id="budgetLabel"></span><span id="budgetPct"></span></div>
   <div class="bar"><div class="bar-fill" id="budgetFill" style="width:0%"></div></div>
@@ -194,6 +199,8 @@ function render() {
   }
   $("heroLabel").textContent = (now.getMonth() + 1) + "월 총지출";
   $("heroAmount").textContent = won(total);
+  const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  $("dday").textContent = "D-" + (lastDay - now.getDate() + 1);
   $("heroSub").innerHTML = "승인 <b>" + okCnt + "건</b>" +
     (cancelCnt ? " · 취소 <b>" + cancelCnt + "건</b> (−" + won(cancelAmt) + ")" : "");
 
